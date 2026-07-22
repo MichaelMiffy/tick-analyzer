@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deriv Tick Analyzer</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles/custom.css" />
+    <style></style>
+  </head>
+  <body>
+    <header>
+      <div class="header-right">
+        <select class="sym-select" id="symSelect">
+          <optgroup label="— 1s Volatility —">
+            <option value="1HZ10V">Volatility 10 (1s)</option>
+            <option value="1HZ25V">Volatility 25 (1s)</option>
+            <option value="1HZ50V">Volatility 50 (1s)</option>
+            <option value="1HZ75V">Volatility 75 (1s)</option>
+            <option value="1HZ100V" selected>Volatility 100 (1s)</option>
+          </optgroup>
+          <optgroup label="— Standard —">
+            <option value="R_10">Volatility 10</option>
+            <option value="R_25">Volatility 25</option>
+            <option value="R_50">Volatility 50</option>
+            <option value="R_75">Volatility 75</option>
+            <option value="R_100">Volatility 100</option>
+          </optgroup>
+        </select>
+        <button class="danger" onclick="resetAll()">RESET</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- PRICE HERO -->
+      <div class="price-hero">
+        <div class="price-card" id="priceCard">
+          <div class="pc-label">LIVE PRICE</div>
+          <div class="pc-val" id="priceDisplay">—</div>
+        </div>
+        <div class="price-card">
+          <div class="pc-label">LAST DIGIT</div>
+          <div class="big-digit-wrap" style="margin-top: 4px">
+            <div class="big-digit" id="bigDigit">—</div>
+            <div>
+              <div class="parity-badge" id="parityBadge">—</div>
+              <div
+                style="
+                  font-family: var(--mono);
+                  font-size: 10px;
+                  color: var(--text3);
+                  margin-top: 6px;
+                "
+                id="digitTime"
+              >
+                —
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="price-card">
+          <div class="pc-label">WINDOW SIZE</div>
+          <div class="m-val" id="mTotal">0</div>
+        </div>
+      </div>
+
+      <!-- DIGIT GRID -->
+      <div class="section-wrap">
+        <div class="panel">
+          <div class="panel-title">
+            Digit Frequency Distribution — Last 1000 Ticks (rolling window)
+          </div>
+          <div style="display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap">
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 10px;
+                color: var(--text2);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: #00ff88;
+                  display: inline-block;
+                "
+              ></span
+              >Most frequent
+            </span>
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 10px;
+                color: var(--text2);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: #00bfff;
+                  display: inline-block;
+                "
+              ></span
+              >2nd most
+            </span>
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 10px;
+                color: var(--text2);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: #ff2d55;
+                  display: inline-block;
+                "
+              ></span
+              >Least frequent
+            </span>
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 10px;
+                color: var(--text2);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: #ff9f0a;
+                  display: inline-block;
+                "
+              ></span
+              >2nd least
+            </span>
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                font-size: 10px;
+                color: var(--text2);
+              "
+            >
+              <span
+                style="
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 50%;
+                  background: var(--cyan);
+                  display: inline-block;
+                "
+              ></span
+              >Current
+            </span>
+          </div>
+          <div class="digits-grid" id="digitsGrid"></div>
+        </div>
+      </div>
+
+      <!-- TREND ROW -->
+      <div class="trend-row">
+        <div class="panel">
+          <div class="panel-title">Even / Odd Flow</div>
+          <div class="split-labels">
+            <span style="color: var(--blue)" id="evenPercentage2">50%</span>
+            <span style="color: var(--amber)" id="oddPct2">50%</span>
+          </div>
+          <div class="split-bar-wrap">
+            <div class="split-fill" id="eoBar2" style="width: 50%; background: var(--blue)"></div>
+          </div>
+          <div class="flow-strip" id="eoFlow"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>DERIV TICK TRACKER &nbsp;|&nbsp; FOR ANALYTICAL USE ONLY</footer>
+
+    <script>
+      window.DERIV_CONFIG = {
+        WS_PUBLIC: 'wss://api.derivws.com/trading/v1/options/ws/public',
+      };
+    </script>
+
+    <script>
+      // ── MARKET STATE ──────────────────────────────────────────
+      const S = {
+        digits: Array(10).fill(0),
+        tickWindow: [],
+        lastPrice: null,
+        live: true,
+        ws: null,
+        symbol: '1HZ100V',
+        eoFlow: [],
+        lastHistoryTime: null,
+        gapFilled: false,
+        liveBuffer: [],
+        is1s: true,
+      };
+
+      const SYMBOL_DECIMALS = {
+        R_10: 3,
+        R_25: 3,
+        R_50: 4,
+        R_75: 4,
+        R_100: 2,
+        '1HZ10V': 2,
+        '1HZ25V': 2,
+        '1HZ50V': 2,
+        '1HZ75V': 2,
+        '1HZ100V': 2,
+      };
+
+      function getLastDigit(quote) {
+        const raw = quote.toString();
+        const dot = raw.indexOf('.');
+        if (dot === -1) return 0;
+        const knownDecimals = SYMBOL_DECIMALS[S.symbol];
+        if (knownDecimals !== undefined) return parseInt(quote.toFixed(knownDecimals).slice(-1));
+        return parseInt(raw.slice(-1));
+      }
+
+      // ── DIGIT GRID ────────────────────────────────────────────
+      function buildGrid() {
+        const g = document.getElementById('digitsGrid');
+        g.innerHTML = '';
+        for (let i = 0; i < 10; i++) {
+          const el = document.createElement('div');
+          el.className = 'd-cell';
+          el.id = 'dc' + i;
+          el.innerHTML = `
+            <div class="d-cursor"></div>
+            <div class="d-rank" id="dr${i}"></div>
+            <div class="d-circle" id="dc-circle${i}"><div class="d-num">${i}</div></div>
+            <div class="d-count" id="dct${i}">0</div>`;
+          g.appendChild(el);
+        }
+      }
+
+      function updateGrid(cur) {
+        const total = S.digits.reduce((a, b) => a + b, 0);
+        if (!total) return;
+        const sorted = S.digits.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+        const maxVal = sorted[0].v;
+        const secondVal = sorted.find((x) => x.v < maxVal)?.v ?? maxVal;
+        const minVal = sorted[9].v;
+        const secondMinVal =
+          sorted
+            .slice()
+            .reverse()
+            .find((x) => x.v > minVal)?.v ?? minVal;
+
+        const getColor = (v) => {
+          if (v === maxVal) return { bg: '#00ff88', border: '#00ff88', text: '#000' };
+          if (v === secondVal) return { bg: '#00bfff', border: '#00bfff', text: '#000' };
+          if (v === minVal) return { bg: '#ff2d55', border: '#ff2d55', text: '#fff' };
+          if (v === secondMinVal) return { bg: '#ff9f0a', border: '#ff9f0a', text: '#000' };
+          return { bg: 'var(--bg3)', border: 'var(--border2)', text: 'var(--text2)' };
+        };
+
+        sorted.forEach(({ v, i }) => {
+          const col = getColor(v);
+          const pct = total > 0 ? ((v / total) * 100).toFixed(1) : '0.0';
+          document.getElementById('dct' + i).textContent = pct + '%';
+          const circle = document.getElementById('dc-circle' + i);
+          circle.style.background = col.bg;
+          circle.style.borderColor = col.border;
+          circle.style.color = col.text;
+          document.getElementById('dr' + i).style.background =
+            col.bg !== 'var(--bg3)' ? col.bg : 'transparent';
+          const cell = document.getElementById('dc' + i);
+          cell.classList.toggle('active-now', i === cur);
+          if (i === cur) {
+            cell.classList.add('flash');
+            setTimeout(() => cell.classList.remove('flash'), 350);
+          }
+        });
+      }
+
+      // ── TRENDS ────────────────────────────────────────────────
+      function updateTrends() {
+        const total = S.digits.reduce((a, b) => a + b, 0);
+        if (!total) return;
+        const evenC = S.digits.filter((_, i) => i % 2 === 0).reduce((a, b) => a + b, 0);
+        const ep = Math.round((evenC / total) * 100);
+        document.getElementById('evenPercentage2').textContent = ep + '%';
+        document.getElementById('oddPct2').textContent = 100 - ep + '%';
+        document.getElementById('eoBar2').style.width = ep + '%';
+        document.getElementById('eoFlow').innerHTML = S.eoFlow
+          .slice(-35)
+          .map(
+            (e) =>
+              `<div class="flow-pip" style="background:${e ? '#1d4ed8' : '#b45309'}">${e ? 'E' : 'O'}</div>`
+          )
+          .join('');
+        document.getElementById('mTotal').textContent = Math.min(S.tickWindow.length, 1000);
+      }
+
+      // ── PROCESS TICK — UI updates ─────────────
+
+      function processTick(quote) {
+        const digit = getLastDigit(quote);
+        const str = quote.toFixed(Math.max(2, (quote.toString().split('.')[1] || '').length));
+        const isEven = digit % 2 === 0;
+
+        S.tickWindow.push(digit);
+        if (S.tickWindow.length > 1000) {
+          const ev = S.tickWindow.shift();
+          S.digits[ev] = Math.max(0, S.digits[ev] - 1);
+        }
+        S.digits[digit]++;
+        S.eoFlow.push(isEven);
+        if (S.eoFlow.length > 100) S.eoFlow.shift();
+
+        // ── UI updates (batched via rAF to reduce layout thrash) ──
+        requestAnimationFrame(() => {
+          document.getElementById('priceDisplay').innerHTML =
+            `${str.slice(0, -1)}<span class="hl">${digit}</span>`;
+          const pc = document.getElementById('priceCard');
+          pc.classList.add('flash');
+          setTimeout(() => pc.classList.remove('flash'), 400);
+          document.getElementById('bigDigit').textContent = digit;
+          const pb = document.getElementById('parityBadge');
+          pb.textContent = isEven ? 'EVEN' : 'ODD';
+          pb.className = 'parity-badge ' + (isEven ? 'even' : 'odd');
+          document.getElementById('digitTime').textContent = new Date().toLocaleTimeString();
+          updateGrid(digit);
+          updateTrends();
+        });
+
+        S.lastPrice = quote;
+      }
+
+      // ── MARKET WEBSOCKET ──────────────────────────────────────
+
+      function processHistoryTick(quote) {
+        const digit = getLastDigit(quote);
+        const isEven = digit % 2 === 0;
+        S.tickWindow.push(digit);
+        if (S.tickWindow.length > 1000) {
+          const ev = S.tickWindow.shift();
+          S.digits[ev] = Math.max(0, S.digits[ev] - 1);
+        }
+        S.digits[digit]++;
+        S.eoFlow.push(isEven);
+        if (S.eoFlow.length > 100) S.eoFlow.shift();
+        S.lastPrice = quote;
+      }
+
+      function connect() {
+        if (S.ws) {
+          S.ws.onclose = null;
+          S.ws.onerror = null;
+          try {
+            S.ws.close();
+          } catch (e) {}
+          S.ws = null;
+        }
+        S.is1s = S.symbol.startsWith('1HZ');
+        S.lastHistoryTime = null;
+        S.gapFilled = false;
+        S.liveBuffer = [];
+
+        try {
+          S.ws = new WebSocket(DERIV_CONFIG.WS_PUBLIC);
+
+          S.ws.onopen = () => {
+            S.ws.send(
+              JSON.stringify({
+                ticks_history: S.symbol,
+                count: 1000,
+                end: 'latest',
+                style: 'ticks',
+                req_id: 1,
+              })
+            );
+          };
+
+          S.ws.onmessage = (e) => {
+            const d = JSON.parse(e.data);
+            if (d.error) {
+              console.error('Market API:', d.error.message);
+              return;
+            }
+
+            if (d.msg_type === 'history' && d.req_id === 1) {
+              const prices = d.history?.prices ?? [],
+                times = d.history?.times ?? [];
+              if (prices.length > 0) S.lastHistoryTime = times[times.length - 1];
+              prices.forEach((p) => processHistoryTick(p));
+              updateGrid(-1);
+              updateTrends();
+              S.ws.send(JSON.stringify({ ticks: S.symbol, subscribe: 1, req_id: 2 }));
+              return;
+            }
+
+            if (d.msg_type === 'history' && d.req_id === 3) {
+              const gp = d.history?.prices ?? [];
+              if (gp.length > 0) {
+                gp.forEach((p) => processHistoryTick(p));
+                updateGrid(-1);
+                updateTrends();
+              }
+              S.gapFilled = true;
+              if (S.liveBuffer.length > 0) {
+                S.liveBuffer.forEach((q) => processTick(q));
+                S.liveBuffer = [];
+              }
+              return;
+            }
+
+            if (d.msg_type === 'tick' && d.tick?.quote !== undefined) {
+              if (!S.live) return;
+              const quote = d.tick.quote,
+                epoch = d.tick.epoch;
+              if (!S.gapFilled && S.lastHistoryTime !== null && S.is1s) {
+                const gap = epoch - S.lastHistoryTime - 1;
+                if (gap > 0) {
+                  S.liveBuffer.push(quote);
+                  S.ws.send(
+                    JSON.stringify({
+                      ticks_history: S.symbol,
+                      start: S.lastHistoryTime + 1,
+                      end: epoch - 1,
+                      style: 'ticks',
+                      req_id: 3,
+                    })
+                  );
+                } else {
+                  S.gapFilled = true;
+                  processTick(quote);
+                }
+              } else if (!S.gapFilled && S.liveBuffer.length > 0) {
+                S.liveBuffer.push(quote);
+              } else {
+                processTick(quote);
+              }
+            }
+          };
+        } catch (ex) {
+          console.error('connect() threw:', ex.message);
+        }
+      }
+
+      function resetAll() {
+        S.digits = Array(10).fill(0);
+        S.tickWindow = [];
+        S.lastPrice = null;
+        S.lastHistoryTime = null;
+        S.gapFilled = false;
+        S.liveBuffer = [];
+        document.getElementById('priceDisplay').textContent = '—';
+        document.getElementById('bigDigit').textContent = '—';
+        document.getElementById('parityBadge').textContent = '—';
+        document.getElementById('parityBadge').className = 'parity-badge';
+        document.getElementById('digitTime').textContent = '—';
+        updateGrid(-1);
+        updateTrends();
+        if (S.ws) {
+          S.ws.onclose = null;
+          S.ws.onerror = null;
+          try {
+            S.ws.close();
+          } catch (e) {}
+          S.ws = null;
+        }
+        if (S.live) connect();
+      }
+
+      document.getElementById('symSelect').addEventListener('change', function () {
+        S.symbol = this.value;
+        localStorage.setItem('deriv_symbol', this.value);
+        resetAll();
+      });
+
+      // ── INIT ──────────────────────────────────────────────────
+      buildGrid();
+      updateGrid(-1);
+
+      const savedSym = localStorage.getItem('deriv_symbol');
+      if (savedSym) {
+        const sel = document.getElementById('symSelect');
+        if ([...sel.options].some((o) => o.value === savedSym)) {
+          sel.value = savedSym;
+          S.symbol = savedSym;
+        }
+      }
+      connect();
+    </script>
+  </body>
+</html>
