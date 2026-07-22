@@ -1,0 +1,318 @@
+:root {
+  --bg: #0a0c10;
+  --bg2: #0f1218;
+  --bg3: #151a22;
+  --bg4: #1c2330;
+  --border: rgba(255, 255, 255, 0.06);
+  --border2: rgba(255, 255, 255, 0.12);
+  --text: #e8edf5;
+  --text2: #8895a7;
+  --text3: #4a5568;
+  --blue: #3b82f6;
+  --blue2: #1d4ed8;
+  --blue-dim: rgba(59, 130, 246, 0.12);
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.12);
+  --cyan: #06b6d4;
+  --cyan-dim: rgba(6, 182, 212, 0.1);
+  --purple: #a855f7;
+  --purple-dim: rgba(168, 85, 247, 0.1);
+  --rank1: #22c55e;
+  --rank2: #3b82f6;
+  --rank9: #ef4444;
+  --rank10: #f59e0b;
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'Orbitron', sans-serif;
+  --body: 'DM Sans', sans-serif;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  font-size: 14px;
+}
+body {
+  font-family: var(--body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sym-select {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  outline: none;
+}
+.sym-select:focus {
+  border-color: var(--cyan);
+}
+
+/* LAYOUT */
+main {
+  padding: 16px 20px;
+  display: grid;
+  gap: 12px;
+}
+
+/* PRICE HERO */
+.price-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
+.price-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.price-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.price-card.flash::after {
+  opacity: 1;
+}
+.pc-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.pc-val {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.pc-val .hl {
+  color: var(--cyan);
+}
+/* BIG DIGIT */
+.big-digit-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.big-digit {
+  font-family: var(--display);
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--cyan);
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+  transition: all 0.15s;
+}
+.parity-badge {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 1px;
+}
+.parity-badge.even {
+  background: var(--blue-dim);
+  color: var(--blue);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.parity-badge.odd {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* DIGIT GRID */
+.section-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  overflow: hidden;
+}
+.panel-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: var(--text3);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.digits-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.digits-grid::-webkit-scrollbar {
+  display: none;
+}
+.d-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.d-cell.active-now {
+  border-color: var(--cyan);
+  transform: scale(1.04);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+}
+.d-num {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  z-index: 1;
+}
+.d-count {
+  font-family: var(--mono);
+  font-size: clamp(8px, 1.2vw, 11px);
+  font-weight: 600;
+  color: var(--text2);
+}
+
+/* TREND ROW */
+.trend-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.flow-strip {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.flow-pip {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--mono);
+}
+
+.m-val {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  border-top: 1px solid var(--border);
+  letter-spacing: 1px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .price-hero {
+    grid-template-columns: 1fr 1fr;
+  }
+  .section-wrap {
+    grid-template-columns: 1fr;
+  }
+  .trend-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .price-hero {
+    grid-template-columns: 1fr;
+  }
+  .trend-row {
+    grid-template-columns: 1fr;
+  }
+  main {
+    padding: 10px 12px;
+  }
+}
