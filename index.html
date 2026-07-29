@@ -12,8 +12,9 @@
     <style></style>
   </head>
   <body>
-    <header>
-      <div class="header-right">
+    <header class="control-bar">
+      <div class="control-field control-field--wide">
+        <span class="field-label">volatility</span>
         <select class="sym-select" id="symSelect">
           <optgroup label="— 1s Volatility —">
             <option value="1HZ10V">Volatility 10 (1s)</option>
@@ -30,6 +31,9 @@
             <option value="R_100">Volatility 100</option>
           </optgroup>
         </select>
+      </div>
+      <div class="control-field control-field--reset">
+        <span class="field-label">reset</span>
         <button class="danger" onclick="resetAll()">RESET</button>
       </div>
     </header>
@@ -37,12 +41,12 @@
     <main>
       <!-- PRICE HERO -->
       <div class="price-hero">
-        <div class="price-card" id="priceCard">
-          <div class="pc-label">LIVE PRICE</div>
+        <div class="price-card price-card--live" id="priceCard">
+          <div class="pc-label">live price</div>
           <div class="pc-val" id="priceDisplay">—</div>
         </div>
         <div class="price-card">
-          <div class="pc-label">LAST DIGIT</div>
+          <div class="pc-label">last digit</div>
           <div class="big-digit-wrap" style="margin-top: 4px">
             <div class="big-digit" id="bigDigit">—</div>
             <div>
@@ -61,8 +65,8 @@
             </div>
           </div>
         </div>
-        <div class="price-card">
-          <div class="pc-label">WINDOW SIZE</div>
+        <div class="price-card price-card--window">
+          <div class="pc-label">window size</div>
           <div class="m-val" id="mTotal">0</div>
         </div>
       </div>
@@ -73,7 +77,7 @@
           <div class="panel-title">
             Digit Frequency Distribution — Last 1000 Ticks (rolling window)
           </div>
-          <div style="display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap">
+          <div class="digit-legend">
             <span
               style="
                 display: flex;
@@ -182,10 +186,10 @@
       <!-- TREND ROW -->
       <div class="trend-row">
         <div class="panel">
-          <div class="panel-title">Even / Odd Flow</div>
+          <div class="panel-title">even / odd distribution</div>
           <div class="split-labels">
-            <span style="color: var(--blue)" id="evenPercentage2">50%</span>
-            <span style="color: var(--amber)" id="oddPct2">50%</span>
+            <span id="evenPercentage2">50%</span>
+            <span id="oddPct2">50%</span>
           </div>
           <div class="split-bar-wrap">
             <div class="split-fill" id="eoBar2" style="width: 50%; background: var(--blue)"></div>
@@ -272,11 +276,11 @@
             .find((x) => x.v > minVal)?.v ?? minVal;
 
         const getColor = (v) => {
-          if (v === maxVal) return { bg: '#00ff88', border: '#00ff88', text: '#000' };
-          if (v === secondVal) return { bg: '#00bfff', border: '#00bfff', text: '#000' };
-          if (v === minVal) return { bg: '#ff2d55', border: '#ff2d55', text: '#fff' };
-          if (v === secondMinVal) return { bg: '#ff9f0a', border: '#ff9f0a', text: '#000' };
-          return { bg: 'var(--bg3)', border: 'var(--border2)', text: 'var(--text2)' };
+          if (v === maxVal) return { bg: '#00ff88', border: '#00ff88', filled: true };
+          if (v === secondVal) return { bg: '#00bfff', border: '#00bfff', filled: true };
+          if (v === minVal) return { bg: '#ff2d55', border: '#ff2d55', filled: true };
+          if (v === secondMinVal) return { bg: '#ff9f0a', border: '#ff9f0a', filled: true };
+          return { bg: 'transparent', border: 'var(--border2)', filled: false };
         };
 
         sorted.forEach(({ v, i }) => {
@@ -286,9 +290,8 @@
           const circle = document.getElementById('dc-circle' + i);
           circle.style.background = col.bg;
           circle.style.borderColor = col.border;
-          circle.style.color = col.text;
-          document.getElementById('dr' + i).style.background =
-            col.bg !== 'var(--bg3)' ? col.bg : 'transparent';
+          circle.classList.toggle('filled', col.filled);
+          document.getElementById('dr' + i).style.background = col.filled ? col.bg : 'transparent';
           const cell = document.getElementById('dc' + i);
           cell.classList.toggle('active-now', i === cur);
           if (i === cur) {
